@@ -2,7 +2,7 @@
  * turtle.js
  */
 
-depends("repl");
+depends("core/repl");
 
 turtle = {
 	version: "0.1"

@@ -1,7 +1,8 @@
 /**
  * init.js
  */
-depends("src/turtle");
+depends.path("src");
+depends("turtle");
 
 var started = false;
 

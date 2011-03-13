@@ -2,7 +2,7 @@
  * repl.js
  */
 
-depends("string_helper");
+depends("helpers/string_helper");
 depends("events");
 depends("util");
 
