@@ -2,8 +2,10 @@
  * events.js
  */
 
+depends("assert");
+
 events = {
-	version: "0.1"
+	version: "0.13"
 };
 
 events.EventEmitter = function() {
@@ -11,48 +13,74 @@ events.EventEmitter = function() {
 	var that = this;
 	
 	// private properties
-	var map = {};
+	this._eventMap = {};
+}
+events.EventEmitter.prototype = (function() {
+	var proto = {};
 	
-	// public methods
-	that.on = function(type, listener) {
-		var events = map[type] || [];
+	proto.on = function(type, listener) {
+		assert.type(type, "string");
+		assert.type(listener, "function");
+		
+		type = type.toLowerCase();
+		
+		var events = this._eventMap[type] || [];
 		events.push(listener);
-		map[type] = events;
+		this._eventMap[type] = events;
 	};
 
-	that.removeListener = function(type, listener) {
-		var events = map[type] || [];
+	proto.removeListener = function(type, listener) {
+		assert.type(type, "string");
+		assert.type(listener, "function");
+		
+		type = type.toLowerCase();
+		
+		var events = this._eventMap[type] || [];
 		var index = events.indexOf(listener);
 		if (index != -1) events.splice(index, 1);
-		map[type] = events;
+		this._eventMap[type] = events;
 	};
 
-	that.removeAllListeners = function(type) {
-		if (map[type]) map[type] = [];
+	proto.removeAllListeners = function(type) {
+		assert.type(type, "string");
+		
+		type = type.toLowerCase();
+		
+		if (this._eventMap[type]) this._eventMap[type] = [];
 	};
 
-	that.emit = function(type/*, arg1,..., argn*/) {
+	proto.emit = function(type/*, arg1,..., argn*/) {
+		assert.type(type, "string");
+		
 		var args = Array.prototype.slice.apply(arguments);
-		args.shift();
+		type = args.shift().toLowerCase();
 
-		var events = map[type] || [];
+		var events = this._eventMap[type] || [];
 		for (var i=0, len=events.length; i<len; i++) (function(fx) {
 			setTimeout(function() { fx.apply(null, args) }, 0);
 		})(events[i]);
 	};
 	
-	that.emitSync = function(type/*, arg1,..., argn*/) {
+	proto.emitSync = function(type/*, arg1,..., argn*/) {
+		assert.type(type, "string");
+		
 		var args = Array.prototype.slice.apply(arguments);
-		args.shift();
-
-		var events = map[type] || [];
+		type = args.shift().toLowerCase();
+		
+		var events = this._eventMap[type] || [];
 		for (var i=0, len=events.length; i<len; i++) {
 			events[i].apply(null, args);
 		}
 	};
 
-	that.listener = function(type) {
-		var events = map[type];
+	proto.listeners = function(type) {
+		assert.type(type, "string");
+		
+		type = type.toLowerCase();
+		
+		var events = this._eventMap[type];
 		return events ? events.concat() : null;
 	};
-};
+	
+	return proto;
+})();
